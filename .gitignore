@@ -1,0 +1,8 @@
+credentials_secret.py
+path.csv
+path_backup.csv
+urls.txt
+debug.log
+contents/
+.vscode/
+__pycache__/
