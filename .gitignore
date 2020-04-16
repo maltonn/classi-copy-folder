@@ -2,6 +2,7 @@ credentials_secret.py
 path.csv
 path_backup.csv
 urls.txt
+o.py
 debug.log
 contents/
 .vscode/
