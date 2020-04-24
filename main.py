@@ -41,15 +41,6 @@ def FolderExplorer(path):
     folders_length=len(driver.find_elements_by_css_selector('.fa-2x.fa-folder'))
     files_length=len(driver.find_elements_by_css_selector('.fa-2x.fa-file-pdf-o'))+len(driver.find_elements_by_css_selector('.fa-2x.fa-file-video-o'))
     
-    for i in range(folders_length):
-        driver.get(url)
-        MarkURL(url)
-        WebDriverWait(driver,wait_limit).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.fa-2x.fa-folder')))
-        elm=driver.find_elements_by_css_selector('.fa-2x.fa-folder')[i]
-        dirname=driver.find_elements_by_class_name('td-fileName')[i].text.replace('/','-')
-        elm.click()
-        FolderExplorer(path+dirname+'/')
-
     for i in range(files_length):
         driver.get(url)
         MarkURL(url)
@@ -60,6 +51,16 @@ def FolderExplorer(path):
         if path+name not in already_downloaded:
             elm.click()
             FileDownload(path)
+
+    for i in range(folders_length):
+        driver.get(url)
+        MarkURL(url)
+        WebDriverWait(driver,wait_limit).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.fa-2x.fa-folder')))
+        elm=driver.find_elements_by_css_selector('.fa-2x.fa-folder')[i]
+        dirname=driver.find_elements_by_class_name('td-fileName')[i+files_length].text.replace('/','-')#ファイル→フォルダの順に並んでいるため
+        elm.click()
+        FolderExplorer(path+dirname+'/')
+
 
 def FileDownload(path):
     while True:
@@ -79,7 +80,7 @@ def FileDownload(path):
     WebDriverWait(driver, wait_limit).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'button[data-ng-click="download()"]')))
     driver.find_elements_by_css_selector('button[data-ng-click="download()"]')[0].click()
     name=driver.find_element_by_tag_name('h2').text.replace('/','-')
-    filename=''.join([random.choice(string.ascii_letters) for i in range(10)])
+    filename=''.join([random.choice(string.ascii_letters) for i in range(15)])
     time.sleep(5)
 
     while True:#ダウンロードが終わるまで待つ
@@ -110,13 +111,16 @@ def main():
 if __name__ == '__main__':
     exe_path=exe_dir+'\chromedriver.exe'
     driver = webdriver.Chrome(executable_path=exe_path)
-    wait_limit=30 #コンテンツが無いことを判断するまでの待機時間
+    wait_limit=15 #コンテンツが無いことを判断するまでの待機時間
 
     already_downloaded=[] #すでにダウンロード済みのものはスキップしたい。
     with open ('path_backup.csv','r',encoding='utf-8_sig') as f:
-        for key,val in csv.reader(f):
-            already_downloaded.append(val)
-
+        for line in csv.reader(f):
+            if len(line)==2:
+                key,val=line
+                already_downloaded.append(val)
+            else:
+                print('k')
     with open ('urls.txt','a') as f:
         f.write('----\n')
     with open ('path.csv','w',encoding='utf-8_sig') as f:
